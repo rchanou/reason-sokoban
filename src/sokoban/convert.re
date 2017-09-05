@@ -1,4 +1,4 @@
-let convertCodeToCategory : string => Types.category = fun code => {
+let convertCodeToKind : string => Types.kind = fun code => {
   switch code {
     | "x" => Wall
     | _ =>  Space
@@ -8,9 +8,9 @@ let convertCodeToCategory : string => Types.category = fun code => {
 let convertTextRowToEntities : int => string => Types.puzzle = fun y textRow => {
   let codeArray = Js_string.split "" textRow;
   let codeList = Array.to_list codeArray;
-  let rowSpriteList = List.map convertCodeToCategory codeList;
-  let formEntity : int => Types.category => Types.entity = fun x sprite => {
-    category: sprite,
+  let rowSpriteList = List.map convertCodeToKind codeList;
+  let formEntity : int => Types.kind => Types.entity = fun x kind => {
+    kind,
     position: {
       x,
       y

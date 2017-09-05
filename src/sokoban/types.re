@@ -3,14 +3,14 @@ type position = {
   y : int
 };
 
-type category =
+type kind =
   | Player 
   | Box 
   | Wall 
   | Target
   | Space;
 
-type entity = { category, position };
+type entity = { kind, position };
 
 type puzzle = list entity;
 
