@@ -7,7 +7,9 @@ type kind =
   | Player 
   | Box 
   | Wall 
-  | Target
+  | Goal
+  | PlayerOnGoal
+  | BoxOnGoal
   | Space;
 
 type entity = { kind, position };
