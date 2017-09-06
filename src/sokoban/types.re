@@ -29,7 +29,7 @@ type move = {
   direction
 };
 
-type game = {
+type playState = {
   puzzle,
   moves : list move
 }

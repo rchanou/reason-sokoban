@@ -35,7 +35,8 @@ let convertTextToPuzzle : string => Types.puzzle = fun text => {
 };
 
 let test = convertTextToPuzzle {|
-  xxxx
-  x  x
-  xxxx
+  ######
+  #@   #
+  #  $.#
+  ######
 |};
