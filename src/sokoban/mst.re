@@ -12,7 +12,7 @@ external mstModel : string => Js.t {..} => mstModelType = "model" [@@bs.scope "t
 external mstViews : mstModelType => mstModelType = "views" [@@bs.send];
 
 /* type actionFun = Js.t {..} => Js.t {..}; */
-external mstActions : mstModelType => 'actionFun => mstModelType = "actions" [@@bs.send];
+external mstActions : mstStore => 'actionFun => mstStore = "actions" [@@bs.send];
 
 external create : mstModelType => initial::Js.t {..}? => mstStore = "" [@@bs.send];
 
@@ -20,7 +20,7 @@ external create : mstModelType => initial::Js.t {..}? => mstStore = "" [@@bs.sen
 
 let testModel = mstModel "Coordinate" { "name": mstString };
 
-let actionDef = fun self => {
+let actionsDef = fun self => {
   let setName = fun value => { 
     self##name #= value;
   };
@@ -31,6 +31,7 @@ let actionDef = fun self => {
 /* let testModelWithActions = mstActions testModel  */
 
 let testStore = create testModel initial::{ "name": "Jak" };
+let testStoreWithActions = mstActions testStore actionsDef;
 
 type element;
 type document = Js.t {. wut : string, title : string, getElementById : (string => element) [@bs.meth] };
