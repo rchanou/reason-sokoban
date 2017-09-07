@@ -9,6 +9,7 @@ const person = types
   .actions(self => ({
     setName(val) {
       self.name = val;
+      return val + "what";
     }
   }));
 

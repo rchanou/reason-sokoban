@@ -1,37 +1,14 @@
-type mstModelType;
-type mstOptionalType;
-type mstStringType;
-type mstStore;
+type model;
+type store;
+type mst 'a = 'a;
 
-external mstOptional : mstOptionalType = "optional" [@@bs.scope "types"] [@@bs.module "mobx-state-tree"];
+external optional : mst (option 'a) = "optional" [@@bs.scope "types"] [@@bs.module "mobx-state-tree"];
+external string : mst string = "string" [@@bs.scope "types"] [@@bs.module "mobx-state-tree"];
+external number : mst float = "number" [@@bs.scope "types"] [@@bs.module "mobx-state-tree"];
 
-external mstString : mstStringType = "string" [@@bs.scope "types"] [@@bs.module "mobx-state-tree"];
+external model : string => Js.t {..} => mst model = "model" [@@bs.scope "types"] [@@bs.module "mobx-state-tree"];
 
-external mstModel : string => Js.t {..} => mstModelType = "model" [@@bs.scope "types"] [@@bs.module "mobx-state-tree"];
+external views : mst model => mst model = "views" [@@bs.send];
+external actions : mst model => 'a => mst model = "actions" [@@bs.send];
 
-external mstViews : mstModelType => mstModelType = "views" [@@bs.send];
-
-external mstActions : mstStore => 'a => mstStore = "actions" [@@bs.send];
-
-external create : mstModelType => initial::Js.t {..}? => mstStore = "" [@@bs.send];
-
-let testModel = mstModel "Coordinate" { "name": mstString };
-
-let actionsDef = fun self => {
-  "setName": fun value => { 
-    self##name #= value;
-  }
-};
-
-let testStore = create testModel initial::{ "name": "Jak" };
-let testStoreWithActions = mstActions testStore actionsDef;
-
-type element;
-type document = Js.t {. wut : string, title : string, getElementById : (string => element) [@bs.meth] };
-external document: document = "document" [@@bs.val];
-let doc = document;
-/* doc##getElementBy */
-let firstTitle = ref document##title;
-firstTitle := "yah";
-Js.log !firstTitle;
-Js.log (doc##getElementById "wut");
+external create : mst model => initial::Js.t {..}? => Js.t {..} = "" [@@bs.send];
