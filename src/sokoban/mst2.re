@@ -1,7 +1,8 @@
+type optionalDefault;
 
-type mstType = | Array mstType | Boolean | Compose | Date | Enumeration | Frozen | Identifier | Late | Literal | Map 
-  | Maybe | Model string modelDef | Null | Number | Optional mstType | Reference | Refinement | String | Undefined | Union
-and modelDef = list (string, mstType);
+type mstTypeDef = | Array mstTypeDef | Boolean | Compose | Date | Enumeration | Frozen | Identifier | Late | Literal | Map 
+  | Maybe | Model string modelDef | Null | Number | Optional mstTypeDef  | Reference | Refinement | String | Undefined | Union
+and modelDef = list (string, mstTypeDef);
 
 external types : Js.t {..} = "types" [@@bs.val] [@@bs.module "mobx-state-tree"];
 external read : Js.t {..} => string => 'a = "" [@@bs.get_index];
@@ -10,9 +11,9 @@ external create : 'a => initial::Js.t {..}? => Js.t {..} = "" [@@bs.send];
 external autorun : (unit => unit) => unit = "autorun" [@@bs.val] [@@bs.module "mobx"];
 external addActions : 'a => 'b => 'a = "actions" [@@bs.send]; 
 
-let rec getType mstVariant => switch mstVariant {
-  | Array mstType => {
-    let itemType = getType mstType;
+let rec reifyType typeDef => switch typeDef {
+  | Array typeDef => {
+    let itemType = reifyType typeDef;
     types##array itemType;
   }
   | Boolean => types##boolean
@@ -20,23 +21,26 @@ let rec getType mstVariant => switch mstVariant {
     let schema = Js.Obj.empty ();
     for i in 0 to (List.length def - 1){
       let (key, mType) = List.nth def i;
-      let reifiedType = getType mType;
+      let reifiedType = reifyType mType;
       swap schema key reifiedType;
     };
     types##model name schema;
   }
   
   | Number => types##number
+  | Optional typeDef => {
+    let itemType = reifyType typeDef;
+    types##optional itemType;
+  }
   | String => types##string
 };
 
-let numberType = getType Number;
+let numberType = reifyType Number;
 let arrayOfNumberDef = Array Number;
-/* let arrayOfNumberType = getType arrayOfNumberDef; */
 
- let personDef = Model "Person" [("name", String)]; 
+ let personDef = Model "Person" [("name", String), ("age", Optional Number)]; 
 
-let personType = getType personDef;
+let personType = reifyType personDef;
 let defActions = fun self => {
   "setName": fun value => { 
     self##name #= value;
