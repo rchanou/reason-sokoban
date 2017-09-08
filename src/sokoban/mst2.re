@@ -1,7 +1,8 @@
 type optionalDefault;
+external castToDefault : 'a => optionalDefault = "%identity";
 
 type mstTypeDef = | Array mstTypeDef | Boolean | Compose | Date | Enumeration | Frozen | Identifier | Late | Literal | Map 
-  | Maybe | Model string modelDef | Null | Number | Optional mstTypeDef  | Reference | Refinement | String | Undefined | Union
+  | Maybe | Model string modelDef | Null | Number | Optional mstTypeDef optionalDefault | Reference | Refinement | String | Undefined | Union
 and modelDef = list (string, mstTypeDef);
 
 external types : Js.t {..} = "types" [@@bs.val] [@@bs.module "mobx-state-tree"];
@@ -28,9 +29,9 @@ let rec reifyType typeDef => switch typeDef {
   }
   
   | Number => types##number
-  | Optional typeDef => {
+  | Optional typeDef default => {
     let itemType = reifyType typeDef;
-    types##optional itemType;
+    types##optional itemType default;
   }
   | String => types##string
 };
@@ -38,7 +39,8 @@ let rec reifyType typeDef => switch typeDef {
 let numberType = reifyType Number;
 let arrayOfNumberDef = Array Number;
 
- let personDef = Model "Person" [("name", String), ("age", Optional Number)]; 
+let defaultAgeDef = Optional Number (castToDefault 0);
+let personDef = Model "Person" [("name", String), ("age", Optional Number (castToDefault 3))]; 
 
 let personType = reifyType personDef;
 let defActions = fun self => {
@@ -48,13 +50,17 @@ let defActions = fun self => {
 };
 let personTypeWithActions = addActions personType defActions;
 
-let personStore = create personTypeWithActions initial::{ "name": "Garum" };
+let personStore = create personTypeWithActions initial::{ "name": "Garum", "age": 21 };
 
 let log () => {
   Js.log personStore##name;
 };
-
 autorun log;
+
+let logAge () => {
+  Js.log personStore##age;
+};
+autorun logAge;
 
 personStore##setName "Habib";
 
